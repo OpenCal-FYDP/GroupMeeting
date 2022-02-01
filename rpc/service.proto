@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option go_package = "/rpc";
+
+service GroupMeetingService {
+  rpc GetGroupEvent(GetGroupEventReq) returns (GetGroupEventRes);
+
+  // Updates the attendee’s availability. When all attendees have entered their availability, emits a request to create a calendar event to the Calendar Event management lambda
+  rpc UpdateGroupEvent(UpdateGroupEventReq) returns (UpdateGroupEventRes);
+}
+
+message GetGroupEventReq {
+  string eventID = 1;
+}
+
+message AttendeeAvailability {
+  string availabilityID = 1;
+  repeated string DateRanges = 2;
+}
+
+message GetGroupEventRes {
+  repeated string attendees = 1;
+  map <string, AttendeeAvailability> availabilities = 2; // maps attendeeID to availability
+}
+
+message UpdateGroupEventReq {
+  string eventID = 1;
+  repeated string attendees = 2;
+  map <string, AttendeeAvailability> availabilities = 3; // maps attendeeID to availability
+}
+
+message UpdateGroupEventRes {}
+
