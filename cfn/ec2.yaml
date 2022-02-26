@@ -1,12 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Metadata:
   License: Apache-2.0
-Description: 'AWS CloudFormation Sample Template EC2InstanceWithSecurityGroupSample:
-  Create an Amazon EC2 instance running the Amazon Linux AMI. The AMI is chosen based
-  on the region in which the stack is run. This example creates an EC2 security group
-  for the instance to give you SSH access. **WARNING** This template creates an Amazon
-  EC2 instance. You will be billed for the AWS resources used if you create a stack
-  from this template.'
+Description: 'GroupMeetingsService'
 Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
@@ -90,27 +85,27 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: !Ref 'HashKeyElementName'
-          AttributeType: !Ref 'HashKeyElementType'
+        - AttributeName: 'eventID'
+          AttributeType: 'S'
       KeySchema:
-        - AttributeName: !Ref 'HashKeyElementName'
+        - AttributeName: !Ref 'eventID'
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref 'ReadCapacityUnits'
         WriteCapacityUnits: !Ref 'WriteCapacityUnits'
 Outputs:
-  InstanceId:
-    Description: InstanceId of the newly created EC2 instance
-    Value: !Ref 'EC2Instance'
-  AZ:
-    Description: Availability Zone of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, AvailabilityZone]
-  PublicDNS:
-    Description: Public DNSName of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, PublicDnsName]
-  PublicIP:
-    Description: Public IP address of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, PublicIp]
+  # InstanceId:
+  #   Description: InstanceId of the newly created EC2 instance
+  #   Value: !Ref 'EC2Instance'
+  # AZ:
+  #   Description: Availability Zone of the newly created EC2 instance
+  #   Value: !GetAtt [EC2Instance, AvailabilityZone]
+  # PublicDNS:
+  #   Description: Public DNSName of the newly created EC2 instance
+  #   Value: !GetAtt [EC2Instance, PublicDnsName]
+  # PublicIP:
+  #   Description: Public IP address of the newly created EC2 instance
+  #   Value: !GetAtt [EC2Instance, PublicIp]
   TableName:
-    Value: !Ref 'myDynamoDBTable'
+    Value: !Ref 'groupEventsTable'
     Description: Table name of the newly created DynamoDB table
