@@ -33,21 +33,21 @@ Parameters:
   #   Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
   #   Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
   # dynamo params
-  HashKeyElementName:
-    Description: HashType PrimaryKey Name
-    Type: String
-    AllowedPattern: '[a-zA-Z0-9]*'
-    MinLength: '1'
-    MaxLength: '2048'
-    ConstraintDescription: must contain only alphanumberic characters
-  HashKeyElementType:
-    Description: HashType PrimaryKey Type
-    Type: String
-    Default: S
-    AllowedPattern: '[S|N]'
-    MinLength: '1'
-    MaxLength: '1'
-    ConstraintDescription: must be either S or N
+  # HashKeyElementName:
+  #   Description: HashType PrimaryKey Name
+  #   Type: String
+  #   AllowedPattern: '[a-zA-Z0-9]*'
+  #   MinLength: '1'
+  #   MaxLength: '2048'
+  #   ConstraintDescription: must contain only alphanumberic characters
+  # HashKeyElementType:
+  #   Description: HashType PrimaryKey Type
+  #   Type: String
+  #   Default: S
+  #   AllowedPattern: '[S|N]'
+  #   MinLength: '1'
+  #   MaxLength: '1'
+  #   ConstraintDescription: must be either S or N
   ReadCapacityUnits:
     Description: Provisioned read throughput
     Type: Number
