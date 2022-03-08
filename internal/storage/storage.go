@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"fmt"
 )
 
 const tableName = "GroupEvents"
@@ -21,6 +22,7 @@ func New() *Storage {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
+	
 	client := dynamodb.New(sess)
 
 	return &Storage{client}
@@ -32,7 +34,7 @@ func (s *Storage) GetGroupEvent(req *rpc.GetGroupEventReq, res *rpc.GetGroupEven
 	result, err := s.client.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"eventId": {
+			"eventID": {
 				S: aws.String(req.EventID),
 			},
 
@@ -51,10 +53,11 @@ func (s *Storage) GetGroupEvent(req *rpc.GetGroupEventReq, res *rpc.GetGroupEven
 
 	// Unmarshal the value from dynamodb attribute to go type
 	// It will be stored in res address
-	err := dynamodbattribute.UnmarshalMap(result.Item, &res)
+	err = dynamodbattribute.UnmarshalMap(result.Item, &res)
 	if err != nil {
 		return err
 	}
+
 
 	return nil
 }
@@ -73,7 +76,7 @@ func StoreGroupEvent(req *rpc.UpdateGroupEventReq, s *Storage) error {
 	}
 
 	// Now we push it into the database, then return
-	_, err := s.client.PutItem(input)
+	_, err = s.client.PutItem(input)
 	
 	return err
 }
@@ -87,8 +90,8 @@ func (s *Storage) UpdateGroupEvent(req *rpc.UpdateGroupEventReq, res *rpc.Update
 	result, err := s.client.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"eventId": {
-				S: aws.String(req.EventID),
+			"eventID": {
+				S: aws.String(req.GetEventID()),
 			},
 			
 		},
@@ -106,19 +109,19 @@ func (s *Storage) UpdateGroupEvent(req *rpc.UpdateGroupEventReq, res *rpc.Update
 	
 	// If there is an event, then I will need to add into the map from database all the values from the req. This includes if someone updated their availibility
 	databaseVal := new(rpc.UpdateGroupEventReq)
-	err := dynamodbattribute.UnmarshalMap(result.Item, &databaseVal)
+	err = dynamodbattribute.UnmarshalMap(result.Item, &databaseVal)
 
 	if err != nil {
 		return err
 	}
 
-	for key, attendeeAvaVal := range req.Availabilities {
+	for key, attendeeAvaVal := range req.GetAvailabilities() {
 		databaseVal.Availabilities[key] = attendeeAvaVal
 	}
 	// Once len(attendees) = len(map) after combining, then we emit an event to calender lambda
-	if len(attendees) == len(databaseVal.Availabilities) {
+	if len(req.GetAttendees()) == len(databaseVal.GetAvailabilities()) {
 		// sennd a request to create the calender event
-
+		fmt.Println("Sent Request")
 	}
 
 	// re-store the values

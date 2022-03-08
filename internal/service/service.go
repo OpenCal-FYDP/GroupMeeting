@@ -16,6 +16,11 @@ func (g *GroupMeetingService) GetGroupEvent(ctx context.Context, req *rpc.GetGro
 	if err != nil {
 		return nil, err
 	}
+	for key, attendeeAvaVal := range res.GetAvailabilities() {
+		println(key)
+		println(attendeeAvaVal.DateRanges)
+		println(attendeeAvaVal.GetAvailabilityID())
+	}
 	return res, nil
 }
 
@@ -28,6 +33,8 @@ func (g *GroupMeetingService) UpdateGroupEvent(ctx context.Context, req *rpc.Upd
 	return res, nil
 }
 
-func New() *GroupMeetingService {
-	return &GroupMeetingService{}
+func New(s *storage.Storage) *GroupMeetingService {
+	return &GroupMeetingService{
+		s,
+	}
 }
