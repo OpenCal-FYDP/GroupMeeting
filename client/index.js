@@ -7,6 +7,8 @@ client.baseURL = "http://localhost:8080";
 // This is provided as a convenience for Node.js clients. If you provide `fetch` globally, this isn't necessary and your client can look identical to the browser client above.
 client.rpcTransport = nodeHttpTransport;
 
+client.headers = {"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0MUBnbWFpbC5jb20iLCJpYXQiOjE1MTYyMzkwMjJ9.ABOL0684XYcYAGyZCwfrwGhdXrql0HviFUZSBX7bwTk"}
+
 
 const test1AA = AttendeeAvailability.initialize();
 test1AA.availabilityID = "3";
