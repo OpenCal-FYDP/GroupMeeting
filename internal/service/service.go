@@ -4,10 +4,9 @@ import (
 	"context"
 	"github.com/OpenCal-FYDP/GroupMeeting/internal/storage"
 	rpc "github.com/OpenCal-FYDP/GroupMeeting/rpc"
-	"fmt"
 )
 
-type GroupMeetingService struct{
+type GroupMeetingService struct {
 	storage *storage.Storage
 }
 
@@ -17,13 +16,6 @@ func (g *GroupMeetingService) GetGroupEvent(ctx context.Context, req *rpc.GetGro
 	if err != nil {
 		return nil, err
 	}
-	for key, attendeeAvaVal := range res.GetAvailabilities() {
-		println(key)
-		println(attendeeAvaVal.DateRanges)
-		println(attendeeAvaVal.GetAvailabilityID())
-	}
-
-	fmt.Printf("%v", res)
 	return res, nil
 }
 
