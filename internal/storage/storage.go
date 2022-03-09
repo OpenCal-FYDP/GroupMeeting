@@ -2,13 +2,17 @@ package storage
 
 import (
 	"errors"
-	"github.com/OpenCal-FYDP/GroupMeeting/rpc"
+	rpc "github.com/OpenCal-FYDP/GroupMeeting/rpc"
+	CEM "github.com/OpenCal-FYDP/CalendarEventManagement/rpc"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"fmt"
+	"net/http"
+	"context"
+	"strings"
 )
 
 const tableName = "GroupEvents"
@@ -81,6 +85,36 @@ func StoreGroupEvent(req *rpc.UpdateGroupEventReq, s *Storage) error {
 	return err
 }
 
+//Get the best interval to create the event
+func GetGroupTimeSlot(req *rpc.UpdateGroupEventReq) (string, string) {
+	m := make(map[string]int)
+	max := 0
+	interval := ""
+
+	for _, attendeeAvaVal := range req.GetAvailabilities() {
+		for _, date := range attendeeAvaVal.GetDateRanges() {
+			numPart, ok := m[date]
+			
+			if ok {
+				numPart += 1
+			} else {
+				numPart = 1
+			}
+
+			m[date] = numPart
+			if numPart > max {
+				max = numPart
+				interval = date
+			}
+		}
+	}
+
+	s := strings.Split(interval, "-")
+
+
+	return s[0], s[1]
+}
+
 
 // Update is different. 
 // Update the database with the request.
@@ -118,14 +152,34 @@ func (s *Storage) UpdateGroupEvent(req *rpc.UpdateGroupEventReq, res *rpc.Update
 	for key, attendeeAvaVal := range req.GetAvailabilities() {
 		databaseVal.Availabilities[key] = attendeeAvaVal
 	}
+
+	err = StoreGroupEvent(databaseVal, s)
+	if err != nil {
+		return err
+	}
+
 	// Once len(attendees) = len(map) after combining, then we emit an event to calender lambda
 	if len(req.GetAttendees()) == len(databaseVal.GetAvailabilities()) {
 		// sennd a request to create the calender event
 		fmt.Println("Sent Request")
+		// Find the interval 
+		start, end := GetGroupTimeSlot(databaseVal)
+		// Hardcoded cal-event-management-stack public DNS
+		DNSRecordString := "ec2-3-80-88-163.compute-1.amazonaws.com"
+		client := CEM.NewCalendarEventManagementServiceProtobufClient(DNSRecordString, &http.Client{})
+		calEvent := CEM.CalEvent{Start: start, End: end, Attendees: req.GetAttendees()}
+		req := CEM.CreateEventReq{CalendarId: req.GetEventID(), EventId: req.GetEventID(), Event: &calEvent} 
+		_, err := client.CreateEvent(context.Background(), &req)
+
+		if err != nil {
+			return err
+		} 
 	}
 
 	// re-store the values
-	return StoreGroupEvent(databaseVal, s)
+	return nil
+
+
 }
 
 

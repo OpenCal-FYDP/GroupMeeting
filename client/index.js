@@ -10,7 +10,7 @@ client.rpcTransport = nodeHttpTransport;
 
 const test1AA = AttendeeAvailability.initialize();
 test1AA.availabilityID = "3";
-test1AA.DateRanges = ["11111", "2222", "3333"];
+test1AA.DateRanges = ["11111-11112", "2222-2223", "3333"];
 
 const test = UpdateGroupEventReq.initialize();
 console.log(test);
@@ -19,7 +19,7 @@ test.availabilities = {"test2@gmail.com" : test1AA};
 test.eventID = "1";
 console.log(test);
 
-const update = await UpdateGroupEvent(test);
+// const update = await UpdateGroupEvent(test);
 
 var test2 = GetGroupEventReq.initialize();
 test2.eventID = "1";

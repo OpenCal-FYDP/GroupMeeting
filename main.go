@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/OpenCal-FYDP/GroupMeeting/internal/service"
 	"github.com/OpenCal-FYDP/GroupMeeting/internal/storage"
-	"github.com/OpenCal-FYDP/GroupMeeting/rpc"
+	rpc "github.com/OpenCal-FYDP/GroupMeeting/rpc"
 	"log"
 	"net/http"
 )
