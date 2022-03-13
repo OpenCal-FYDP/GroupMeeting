@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -157,12 +158,23 @@ func (s *Storage) UpdateGroupEvent(req *rpc.UpdateGroupEventReq, res *rpc.Update
 		fmt.Println("Sent Request")
 		// Find the interval
 		start, end := GetGroupTimeSlot(databaseVal)
+
+		startInt, err := strconv.Atoi(start)
+		if err != nil {
+			return err
+		}
+
+		endInt, err := strconv.Atoi(end)
+		if err != nil {
+			return err
+		}
+
 		// Hardcoded cal-event-management-stack public DNS
-		DNSRecordString := "ec2-3-80-88-163.compute-1.amazonaws.com"
+		DNSRecordString := "ec2-34-227-242-82.compute-1.amazonaws.com:8080"
 		client := CEM.NewCalendarEventManagementServiceProtobufClient(DNSRecordString, &http.Client{})
-		calEvent := CEM.CalEvent{Start: start, End: end, Attendees: req.GetAttendees()}
+		calEvent := CEM.CalEvent{Start: int64(startInt), End: int64(endInt), Attendees: req.GetAttendees()}
 		req := CEM.CreateEventReq{CalendarId: req.GetEventID(), EventId: req.GetEventID(), Event: &calEvent}
-		_, err := client.CreateEvent(context.Background(), &req)
+		_, err = client.CreateEvent(context.Background(), &req)
 
 		if err != nil {
 			return err
