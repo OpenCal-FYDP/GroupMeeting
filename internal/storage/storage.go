@@ -158,7 +158,7 @@ func (s *Storage) UpdateGroupEvent(req *rpc.UpdateGroupEventReq, res *rpc.Update
 		// Find the interval
 		start, end := GetGroupTimeSlot(databaseVal)
 		// Hardcoded cal-event-management-stack public DNS
-		DNSRecordString := "ec2-3-80-88-163.compute-1.amazonaws.com"
+		DNSRecordString := "http://ec2-3-80-88-163.compute-1.amazonaws.com:8080"
 		client := CEM.NewCalendarEventManagementServiceProtobufClient(DNSRecordString, &http.Client{})
 		calEvent := CEM.CalEvent{Start: start, End: end, Attendees: req.GetAttendees()}
 		req := CEM.CreateEventReq{CalendarId: req.GetEventID(), EventId: req.GetEventID(), Event: &calEvent}
