@@ -6,6 +6,7 @@ import (
 	"github.com/OpenCal-FYDP/GroupMeeting/internal/service"
 	"github.com/OpenCal-FYDP/GroupMeeting/internal/storage"
 	rpc "github.com/OpenCal-FYDP/GroupMeeting/rpc"
+	"github.com/rs/cors"
 	"github.com/twitchtv/twirp"
 	"log"
 	"math/rand"
@@ -34,8 +35,15 @@ func main() {
 		secret = randomString(128)
 		fmt.Printf("Randomly Generated Secret: %s\n", secret)
 	}
+	corsWrapper := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"POST"},
+		AllowedHeaders: []string{"Content-Type"},
+	})
 	svc := service.New(storage.New())
 	server := rpc.NewGroupMeetingServiceServer(svc, twirp.WithServerInterceptors(Authorization.NewAuthorizationInterceptor([]byte(secret), authorizeMethods...)))
+
 	jwtServer := Authorization.WithJWT(server)
-	log.Fatal(http.ListenAndServe(":8080", jwtServer))
+	handler := corsWrapper.Handler(jwtServer)
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
